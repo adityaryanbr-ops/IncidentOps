@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,6 +46,11 @@ export function IncidentForm({
     [stageIndex],
   );
 
+  useEffect(() => {
+    void applySample(SAMPLE_INCIDENTS[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function applySample(sample: SampleIncident) {
     setReportText(sample.reportText);
     setLocation(sample.location);
@@ -58,9 +62,13 @@ export function IncidentForm({
     setFile(new File([blob], `${sample.id}.png`, { type: blob.type || "image/png" }));
   }
 
-  async function onSubmit(event: React.FormEvent) {
-    event.preventDefault();
+  async function runAnalysis() {
     setError(null);
+
+    if (!reportText.trim() || !location.trim()) {
+      setError("Location and field report are required.");
+      return;
+    }
 
     let imageFile = file;
     if (!imageFile) {
@@ -96,7 +104,13 @@ export function IncidentForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        void runAnalysis();
+      }}
+      className="space-y-5"
+    >
       <div className="flex flex-wrap gap-2">
         {SAMPLE_INCIDENTS.map((sample) => (
           <button
@@ -219,14 +233,19 @@ export function IncidentForm({
         </div>
       ) : null}
 
-      <Button type="submit" disabled={busy} size="lg" className="gap-2 px-6">
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => void runAnalysis()}
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-medium text-primary-foreground transition hover:bg-primary/85 disabled:pointer-events-none disabled:opacity-50"
+      >
         {busy ? (
           <LoaderCircle className="size-4 animate-spin" />
         ) : (
           <Sparkles className="size-4" />
         )}
         Analyze incident
-      </Button>
+      </button>
     </form>
   );
 }
