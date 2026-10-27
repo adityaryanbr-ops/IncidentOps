@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --port 3847",
-    "build": "next build --turbopack",
+    "dev": "next dev --webpack --port 3847",
+    "build": "next build --webpack",
     "start": "next start --port 3847",
     "lint": "eslint"
   },
