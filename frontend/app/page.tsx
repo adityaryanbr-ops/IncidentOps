@@ -17,6 +17,8 @@ export default function HomePage() {
     demo_mode?: boolean;
     vision_model?: string;
     text_model?: string;
+    nebius_configured?: boolean;
+    tavily_configured?: boolean;
   } | null>(null);
   const [healthError, setHealthError] = useState<string | null>(null);
 
@@ -94,9 +96,13 @@ export default function HomePage() {
             <p className="mt-4 text-xs text-teal-100/75">
               {healthError
                 ? `API status: ${healthError}`
-                : health?.demo_mode
-                  ? "Demo mode active until NEBIUS_API_KEY and TAVILY_API_KEY are set."
-                  : "Live keys detected — analyses will call Nebius + Tavily."}
+                : !health
+                  ? "Checking API…"
+                  : health.demo_mode ||
+                      !health.nebius_configured ||
+                      !health.tavily_configured
+                    ? "Demo mode active until NEBIUS_API_KEY and TAVILY_API_KEY are set."
+                    : "Live keys detected — analyses will call Nebius + Tavily."}
             </p>
           </div>
         </div>
