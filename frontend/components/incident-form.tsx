@@ -48,7 +48,6 @@ export function IncidentForm({
 
   useEffect(() => {
     void applySample(SAMPLE_INCIDENTS[0]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function applySample(sample: SampleIncident) {
