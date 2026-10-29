@@ -10,6 +10,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from app.agents import demo_data, prompts
+from app.agents.brief_quality import floor_severity, is_junk, salvage_report
 from app.clients.nebius import NebiusClient
 from app.clients.tavily import TavilySearchClient
 from app.config import Settings
@@ -27,6 +28,16 @@ from app.services.helplines import supported_helplines, helpline_markdown, resol
 
 def _schema(model: type) -> dict[str, Any]:
     return model.model_json_schema()
+
+
+def _payload_is_junk(value: Any) -> bool:
+    if isinstance(value, str):
+        return is_junk(value)
+    if isinstance(value, dict):
+        return any(_payload_is_junk(item) for item in value.values())
+    if isinstance(value, list):
+        return any(_payload_is_junk(item) for item in value)
+    return False
 
 
 class IncidentPipeline:
@@ -95,11 +106,34 @@ class IncidentPipeline:
                 schema=_schema(SeverityAssessment),
                 schema_name="severity_assessment",
             )
-            assessment = await self._parse_model(
-                SeverityAssessment,
-                assess_raw,
-                schema_name="severity_assessment",
-            )
+            try:
+                assessment = await self._parse_model(
+                    SeverityAssessment,
+                    assess_raw,
+                    schema_name="severity_assessment",
+                )
+            except (ValidationError, ValueError, json.JSONDecodeError):
+                assessment = SeverityAssessment(
+                    severity="medium",
+                    confidence=visual.confidence,
+                    rationale="The severity planner did not return a usable assessment, so this follows the visible scene.",
+                    category="field incident",
+                    search_queries=[f"{report_text[:140]} safety guidance near {location}"],
+                    immediate_risks=[],
+                )
+            floored = floor_severity(assessment.severity, visual)
+            if floored != assessment.severity:
+                rationale = "" if is_junk(assessment.rationale) else assessment.rationale
+                assessment = assessment.model_copy(
+                    update={
+                        "severity": floored,
+                        "rationale": f"{rationale} Raised because the scene shows an active fire or explosion.".strip(),
+                    }
+                )
+            elif is_junk(assessment.rationale):
+                assessment = assessment.model_copy(
+                    update={"rationale": "Advisory severity is based on the visible scene."}
+                )
 
         queries = assessment.search_queries[:2] or [
             f"{assessment.category} {report_text[:160]} safety advisories near {location}",
@@ -186,26 +220,51 @@ class IncidentPipeline:
             "Nebius Token Factory",
             "Nemotron Lightning drafts sourced response brief",
             model=self.settings.text_model,
-        ):
-            brief_raw = await self.nebius.text_json(
-                system=prompts.BRIEF_SYSTEM,
-                user_text=prompts.BRIEF_USER.format(
+        ) as brief_meta:
+            brief_sources = [
+                {"title": source.title, "url": source.url, "snippet": source.snippet[:360], "query": source.query}
+                for source in sources[:8]
+            ]
+            try:
+                brief_raw = await self.nebius.text_json(
+                    system=prompts.BRIEF_SYSTEM,
+                    user_text=prompts.BRIEF_USER.format(
+                        location=location,
+                        coordinates=coordinates,
+                        helplines_json=json.dumps([c.model_dump() for c in contacts]),
+                        report_text=report_text,
+                        visual_json=visual.model_dump_json(indent=2),
+                        assessment_json=assessment.model_dump_json(indent=2),
+                        sources_json=json.dumps(brief_sources, indent=2),
+                    ),
+                    schema=_schema(IncidentReport),
+                    schema_name="incident_report",
+                )
+                report = await self._parse_model(
+                    IncidentReport,
+                    brief_raw,
+                    schema_name="incident_report",
+                )
+            except (ValidationError, ValueError, json.JSONDecodeError):
+                report = IncidentReport(
+                    title="Incident brief",
+                    severity=assessment.severity,
+                    severity_confidence=assessment.confidence,
+                    category=assessment.category,
                     location=location,
-                    coordinates=coordinates,
-                    helplines_json=json.dumps([c.model_dump() for c in contacts]),
-                    report_text=report_text,
-                    visual_json=visual.model_dump_json(indent=2),
-                    assessment_json=assessment.model_dump_json(indent=2),
-                    sources_json=json.dumps([s.model_dump() for s in sources], indent=2),
-                ),
-                schema=_schema(IncidentReport),
-                schema_name="incident_report",
-            )
-            report = await self._parse_model(
-                IncidentReport,
-                brief_raw,
-                schema_name="incident_report",
-            )
+                    observed_facts=[],
+                    inferences=[],
+                    unknowns=list(visual.unknowns),
+                    immediate_actions=[],
+                    checklist=[],
+                    live_context_summary="",
+                    sources=[],
+                    human_verification_required=[],
+                    markdown_report="",
+                )
+                brief_meta["status"] = "error"
+                brief_meta["detail"] = "Brief draft was empty and was rebuilt from the scene"
+            report = salvage_report(report, visual=visual, assessment=assessment)
             report.live_context_summary = remove_contact_prose(report.live_context_summary)
             report.immediate_actions = [remove_contact_prose(action) for action in report.immediate_actions]
             if report.severity in {"high", "critical"} and not report.emergency_notice:
@@ -249,9 +308,11 @@ class IncidentPipeline:
             repaired = await self.nebius.repair_json(
                 schema_name=schema_name,
                 schema=_schema(model),
-                broken=raw,
-                instruction=f"Repair into valid {schema_name} JSON.",
+                broken=raw[:8000],
+                instruction=f"Repair into valid {schema_name} JSON. Do not copy error messages into the fields.",
             )
+            if _payload_is_junk(repaired):
+                raise ValueError(f"{schema_name} repair echoed an empty payload")
             return model.model_validate(repaired)
 
     async def _run_demo(self, *, report_text: str, location: str) -> PipelineResult:

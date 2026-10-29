@@ -9,6 +9,13 @@ import { downloadMarkdown, printReport } from "@/lib/export";
 import type { PipelineResult, Severity, OfficialHelplineResult } from "@/lib/types";
 import { Download, Printer, MapPin, ShieldCheck, TriangleAlert, Phone, Eye, ListChecks, CircleHelp, ArrowUpRight } from "lucide-react";
 
+const JUNK = /empty[_\s-]?payload|no data to repair/i;
+const ACTIVE_HAZARD = /\b(engulfed|flames?|on fire|ablaze|explosion|blaze)\b/i;
+
+function visibleLines(items: string[] | undefined) {
+  return (items || []).filter((item) => item.trim() && !JUNK.test(item));
+}
+
 const SEVERITY: Record<Severity, { label: string; description: string }> = {
   low: { label: "Low priority", description: "Review the scene and arrange follow-up." },
   medium: { label: "Needs attention", description: "Review the risks and next steps before proceeding." },
@@ -49,10 +56,32 @@ export function IncidentReportView({ result }: { result: PipelineResult }) {
     markdown_report: (originalReport.markdown_report || "").replace(/\n\n## Helplines\n[\s\S]*$/, "") + update.markdown_section,
   } : originalReport;
   const lookupState = lookup && lookup.id === result.id ? lookup.state : "idle";
-  const severity = SEVERITY[report.severity];
+  const sceneText = [visual.summary, ...(visual.hazards || []), ...(visual.observed_facts || [])].join(" ");
+  const severityKey: Severity =
+    ACTIVE_HAZARD.test(sceneText) && (report.severity === "low" || report.severity === "medium")
+      ? "high"
+      : report.severity;
+  const modelActions = visibleLines(report.immediate_actions);
+  const actions = modelActions.length
+    ? modelActions
+    : ACTIVE_HAZARD.test(sceneText)
+      ? [
+          "Stay back from the scene and keep other people away.",
+          "Do not approach the fire or try to put it out.",
+          "If someone may be in danger, use the helpline section. IncidentOps does not contact emergency services.",
+        ]
+      : [];
+  const unknowns = visibleLines(report.unknowns);
+  const facts = visibleLines(report.observed_facts);
+  const inferences = visibleLines(report.inferences);
+  const checks = visibleLines(report.human_verification_required);
+  const contextSummary = JUNK.test(report.live_context_summary)
+    ? "Public search results are context only. They are not confirmation that those pages describe this incident."
+    : report.live_context_summary;
+  const severity = SEVERITY[severityKey];
 
   return (
-    <article className="response-brief" id="incident-report" data-severity={report.severity}>
+    <article className="response-brief" id="incident-report" data-severity={severityKey}>
       <header className="brief-heading">
         <div><p className="brief-eyebrow">Your incident brief{demo_mode ? " · Demo" : ""}</p><h2>{report.title}</h2><p className="brief-location"><MapPin size={19} aria-hidden="true" />{report.location}</p></div>
         <div className="brief-export print:hidden">
@@ -64,7 +93,7 @@ export function IncidentReportView({ result }: { result: PipelineResult }) {
       <div className="brief-severity">
         <TriangleAlert size={28} aria-hidden="true" />
         <div><strong>{severity.label}</strong><p>{report.emergency_notice || severity.description}</p></div>
-        <span className="brief-rating">Advisory severity: {report.severity}</span>
+        <span className="brief-rating">Advisory severity: {severityKey}</span>
       </div>
       <p className="brief-advisory">Check the scene and confirm the advice before acting. IncidentOps does not dispatch help.</p>
 
@@ -73,7 +102,7 @@ export function IncidentReportView({ result }: { result: PipelineResult }) {
       <div className="brief-main">
         <section id="report-actions" className="brief-actions" aria-labelledby="actions-title">
           <div className="brief-section-heading"><ShieldCheck size={24} aria-hidden="true" /><h3 id="actions-title">Do this first</h3></div>
-          {report.immediate_actions.length ? <ol className="action-steps">{report.immediate_actions.map((action, index) => <li key={`${index}-${action}`}><span className="action-step-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><p>{action}</p></li>)}</ol> : <p className="brief-muted">No immediate actions were provided. Confirm the situation with a qualified responder.</p>}
+          {actions.length ? <ol className="action-steps">{actions.map((action, index) => <li key={`${index}-${action}`}><span className="action-step-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><p>{action}</p></li>)}</ol> : <p className="brief-muted">No immediate actions were provided. Confirm the situation with a qualified responder.</p>}
           {report.checklist.length ? <details className="brief-disclosure"><summary><ListChecks size={20} aria-hidden="true" />Full handoff checklist</summary><ol className="handoff-list">{report.checklist.map((item, index) => <li key={`${item.priority}-${index}`} data-priority={item.priority}><span className="handoff-priority">{item.priority}</span><div><strong>{item.action}</strong><p>{item.owner_hint} · {item.rationale}</p></div></li>)}</ol></details> : null}
         </section>
 
@@ -92,13 +121,13 @@ export function IncidentReportView({ result }: { result: PipelineResult }) {
 
       <section id="report-evidence" className="brief-evidence" aria-labelledby="evidence-title">
         <div className="brief-section-heading"><Eye size={24} aria-hidden="true" /><h3 id="evidence-title">What we know</h3></div>
-        {report.observed_facts.length ? <ul className="evidence-facts">{report.observed_facts.map((fact, index) => <li key={`${index}-${fact}`}>{fact}</li>)}</ul> : <p>{visual.summary}</p>}
-        {report.unknowns.length ? <div className="brief-unknowns"><h4><CircleHelp size={20} aria-hidden="true" />Still unconfirmed</h4><ul>{report.unknowns.map((unknown, index) => <li key={`${index}-${unknown}`}>{unknown}</li>)}</ul></div> : null}
-        {report.inferences.length ? <details className="brief-disclosure"><summary>Possible explanations</summary><p className="brief-muted">These are inferences, not confirmed facts.</p><ul className="evidence-facts">{report.inferences.map((inference, index) => <li key={`${index}-${inference}`}>{inference}</li>)}</ul></details> : null}
-        {report.human_verification_required.length ? <div className="brief-verification"><ShieldCheck size={23} aria-hidden="true" /><div><h4>Before you act</h4><ul>{report.human_verification_required.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul></div></div> : null}
+        {facts.length ? <ul className="evidence-facts">{facts.map((fact, index) => <li key={`${index}-${fact}`}>{fact}</li>)}</ul> : <p>{visual.summary}</p>}
+        {unknowns.length ? <div className="brief-unknowns"><h4><CircleHelp size={20} aria-hidden="true" />Still unconfirmed</h4><ul>{unknowns.map((unknown, index) => <li key={`${index}-${unknown}`}>{unknown}</li>)}</ul></div> : null}
+        {inferences.length ? <details className="brief-disclosure"><summary>Possible explanations</summary><p className="brief-muted">These are inferences, not confirmed facts.</p><ul className="evidence-facts">{inferences.map((inference, index) => <li key={`${index}-${inference}`}>{inference}</li>)}</ul></details> : null}
+        {checks.length ? <div className="brief-verification"><ShieldCheck size={23} aria-hidden="true" /><div><h4>Before you act</h4><ul>{checks.map((item, index) => <li key={`${index}-${item}`}>{item}</li>)}</ul></div></div> : null}
       </section>
 
-      <details className="brief-disclosure brief-sources"><summary>Supporting sources & context <span>{report.sources.length} sources</span></summary><p className="brief-muted">{report.live_context_summary}</p><SourceList sources={report.sources} /></details>
+      <details className="brief-disclosure brief-sources"><summary>Supporting sources & context <span>{report.sources.length} sources</span></summary><p className="brief-muted">{contextSummary}</p><SourceList sources={report.sources} /></details>
       <details className="brief-disclosure print:hidden"><summary>How this report was built</summary><p className="brief-muted">AI confidence: {(report.severity_confidence * 100).toFixed(0)}%. This is a model estimate, not a confirmed risk measurement.</p><p className="brief-muted">{assessment?.rationale}</p><ExecutionTrace steps={trace} models={models_used} baseUrl={nebius_base_url} demoMode={demo_mode} /></details>
     </article>
   );
