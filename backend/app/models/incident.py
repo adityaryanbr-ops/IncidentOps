@@ -36,10 +36,31 @@ class ContextSource(BaseModel):
 
 
 class ChecklistItem(BaseModel):
-    priority: Literal["P0", "P1", "P2"]
+    priority: Literal["P1", "P2", "P3"]
     action: str
     owner_hint: str = "On-site responder"
     rationale: str
+
+
+class Helpline(BaseModel):
+    service: str = Field(min_length=1)
+    phone: str = Field(min_length=3, max_length=40)
+    jurisdiction: str = Field(min_length=1)
+    purpose: str = Field(min_length=1)
+    source_url: str
+    evidence_quote: str = Field(min_length=1)
+    source_kind: Literal["live_lookup", "official_directory"] = "live_lookup"
+    last_reviewed: str | None = None
+
+
+class HelplineDirectory(BaseModel):
+    helplines: list[Helpline] = Field(default_factory=list, max_length=6)
+
+
+class OfficialHelplineResult(HelplineDirectory):
+    helpline_lookup_state: Literal["official_fallback", "not_found", "location_required"]
+    helpline_status: str
+    markdown_section: str
 
 
 class IncidentReport(BaseModel):
@@ -56,6 +77,9 @@ class IncidentReport(BaseModel):
     live_context_summary: str
     sources: list[ContextSource]
     human_verification_required: list[str]
+    helplines: list[Helpline] = Field(default_factory=list)
+    helpline_lookup_state: Literal["found", "official_fallback", "not_found", "location_required", "lookup_failed", "demo"] = "not_found"
+    helpline_status: str = "No sourced helpline numbers are available for this report. Confirm the incident city and country and analyze again."
     emergency_notice: str | None = None
     markdown_report: str
 

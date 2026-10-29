@@ -7,9 +7,16 @@ import { IncidentReportView } from "@/components/incident-report";
 import { getHealth } from "@/lib/api";
 import { loadIncidents, saveIncident } from "@/lib/storage";
 import type { PipelineResult, SavedIncident } from "@/lib/types";
-import { Activity, ShieldAlert } from "lucide-react";
+import Image from "next/image";
+import { IncidentCategories } from "@/components/incident-categories";
+import type { IncidentCategory } from "@/lib/incident-categories";
+import { IncidentQuoteDeck } from "@/components/showcase-carousels";
+import { ScrollReveal } from "@/components/scroll-reveal";
+import { ArrowRight, ArrowUpRight, Activity, Aperture, Layers3, ScanLine, ShieldAlert, Sun, Moon } from "lucide-react";
 
 export default function HomePage() {
+  const [lightTheme, setLightTheme] = useState(false);
+  const [incidentCategory, setIncidentCategory] = useState<IncidentCategory | null>(null);
   const [busy, setBusy] = useState(false);
   const [active, setActive] = useState<SavedIncident | null>(null);
   const [incidents, setIncidents] = useState<SavedIncident[]>([]);
@@ -23,6 +30,12 @@ export default function HomePage() {
   const [healthError, setHealthError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (performance.getEntriesByType("navigation")[0] instanceof PerformanceNavigationTiming &&
+        (performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming).type === "reload") {
+      history.scrollRestoration = "manual";
+      if (location.hash) history.replaceState(history.state, "", location.pathname + location.search);
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
     setIncidents(loadIncidents());
     getHealth()
       .then((body) => {
@@ -46,142 +59,64 @@ export default function HomePage() {
     setActive(saved);
   }
 
+  const status = healthError ? "API offline" : !health ? "Connecting" : health.demo_mode || !health.nebius_configured || !health.tavily_configured ? "Demo environment" : "Live environment";
+
   return (
-    <main className="mx-auto min-h-screen w-full max-w-7xl px-4 pb-16 pt-6 md:px-8">
-      <header className="hero-shell fade-up mb-8 rounded-[2rem] px-6 py-8 text-teal-50 md:px-10 md:py-12">
-        <div className="relative z-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
-              ASTRAX · Best Apps and Agents
-            </p>
-            <h1 className="mt-4 font-display text-5xl leading-[0.92] md:text-7xl">
-              IncidentOps
-            </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-teal-50/85 md:text-lg">
-              Turn a field photo and rough report into an evidence-grounded
-              response brief — powered by NVIDIA Nemotron on Nebius Token Factory
-              and live Tavily context.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <a
-                href="#workspace"
-                className="rounded-full bg-amber-300 px-5 py-2.5 text-sm font-semibold text-teal-950 transition hover:bg-amber-200"
-              >
-                Open workspace
-              </a>
-              <a
-                href="#trace-anchor"
-                className="rounded-full border border-teal-100/35 px-5 py-2.5 text-sm font-medium text-teal-50 transition hover:bg-white/10"
-              >
-                See Nebius runtime path
-              </a>
-            </div>
+    <div className="site" data-theme={lightTheme ? "light" : "dark"}>
+      <a href="#workspace" className="skip-link">Skip to workspace</a>
+      <nav className="topbar page-width" aria-label="Main navigation">
+        <a href="#" className="brand"><Aperture aria-hidden="true" /><span>Incident<span className="brand-ops">Ops</span></span></a>
+        <div className="nav-links"><a href="#approach">The approach</a><a href="#workspace">Workspace</a><a href="#trace-anchor">Response brief <ArrowUpRight size={14} /></a></div>
+        <button className="theme-button" type="button" aria-label={lightTheme ? "Use dark theme" : "Use light theme"} onClick={() => setLightTheme(!lightTheme)}>{lightTheme ? <Moon size={18} /> : <Sun size={18} />}</button>
+      </nav>
+      <main className="page-width">
+        <header className="opening">
+          <div className="hero-atmosphere" aria-hidden="true"><Image src="/city-hero.png" alt="" fill priority sizes="100vw" className="hero-image" /></div>
+          <div className="opening-copy">
+            <div className="wordmark-mask"><h1 className="hero-title">IncidentOps<span className="wordmark-star" aria-hidden="true">*</span></h1></div>
+            <div className="hero-summary"><p className="hero-description">A field photo. A clearer picture. Turn incident evidence into a response brief, grounded in what you can actually see.</p>
+            <a href="#workspace" className="action-button">Open workspace <span className="button-orb"><ArrowRight size={20} /></span></a></div>
           </div>
-          <div className="rounded-[1.4rem] border border-white/15 bg-black/20 p-5 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-amber-200">
-              <Activity className="size-4" />
-              <span className="text-xs font-semibold uppercase tracking-[0.16em]">
-                Runtime stack
-              </span>
-            </div>
-            <div className="signal-line mt-3 w-full" />
-            <ul className="mt-4 space-y-3 text-sm text-teal-50/90">
-              <li>Nebius Token Factory · OpenAI-compatible API</li>
-              <li>{health?.vision_model || "nvidia/Nemotron-3.5-Super-VL"}</li>
-              <li>
-                {health?.text_model || "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B"}
-              </li>
-              <li>Tavily Search API for live operational context</li>
-            </ul>
-            <p className="mt-4 text-xs text-teal-100/75">
-              {healthError
-                ? `API status: ${healthError}`
-                : !health
-                  ? "Checking API…"
-                  : health.demo_mode ||
-                      !health.nebius_configured ||
-                      !health.tavily_configured
-                    ? "Demo mode active until NEBIUS_API_KEY and TAVILY_API_KEY are set."
-                    : "Live keys detected — analyses will call Nebius + Tavily."}
-            </p>
-          </div>
+        </header>
+        <ScrollReveal>
+          <section id="approach" className="approach-section">
+            <h2>When the scene is uncertain,<br className="desktop-break" /> your next move shouldn’t be.</h2>
+            <div className="approach-detail"><p>Start with the evidence. IncidentOps brings visual observations, severity assessment, and live context together in one response brief.</p><p>Built to inform the people on the ground.<br />Human judgment always comes first.</p></div>
+          </section>
+        </ScrollReveal>
+        <IncidentCategories onChoose={setIncidentCategory} />
+        <div className="runtime-strip">
+          <div className="runtime-status"><Activity size={17} /><span>{status}</span></div>
+          <details className="runtime-details"><summary>Connection details</summary><div><p>Address lookup: Photon / OpenStreetMap contributors.</p><p>{health?.vision_model || "nvidia/Nemotron-3.5-Super-VL"}</p><p>{health?.text_model || "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B"}</p><p>{healthError || "Live analysis requires configured Nebius and Tavily API keys."}</p></div></details>
         </div>
-      </header>
-
-      <div id="workspace" className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
-        <section className="fade-up space-y-6 rounded-[1.8rem] border border-[var(--line)] bg-white/70 p-5 shadow-[0_18px_50px_rgba(16,38,43,0.06)] backdrop-blur md:p-6">
-          <div>
-            <p className="section-kicker">Intake</p>
-            <h2 className="mt-2 font-display text-3xl text-[var(--ink)]">
-              Capture the scene
-            </h2>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              Upload evidence, add location context, and let the agent loop
-              classify severity, pull live sources, and draft the checklist.
-            </p>
-          </div>
-          <IncidentForm onResult={handleResult} busy={busy} setBusy={setBusy} />
-
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4">
-            <div className="flex items-center gap-2 text-teal-900">
-              <ShieldAlert className="size-4" />
-              <p className="text-sm font-medium">Advisory only</p>
+        <ScrollReveal>
+          <section id="workspace" className="workspace-section">
+            <div className="workspace-heading"><h2>Report an incident</h2><p>Add a photo, a location and a short description.</p></div>
+            <div className="workspace-grid">
+              <section className="intake-panel">
+                <div className="panel-heading"><ScanLine size={22} /><h3>Report details</h3></div>
+                {incidentCategory ? <p className="intake-category">Reporting: <strong>{incidentCategory.title}</strong><a href="#incident-types">Change category <ArrowUpRight size={13} /></a></p> : null}
+                <IncidentForm onResult={handleResult} busy={busy} setBusy={setBusy} />
+                <div className="advisory"><ShieldAlert size={18} /><div><strong>Advisory only</strong><p>Review the advice before acting. IncidentOps does not dispatch emergency services.</p></div></div>
+              </section>
+              <section className="board-panel">
+                <div className="panel-heading"><Layers3 size={22} /><h3>Recent incidents</h3><span className="saved-count">{incidents.length} saved locally</span></div>
+                {incidents.length === 0 ? (
+                  <div className="empty-board"><div className="empty-icon"><Layers3 size={30} strokeWidth={1.3} /></div><h4>A clearer picture starts<br />with one report.</h4><p>Your analyzed incidents will appear here.</p><a href="#report">Start with a field report <ArrowUpRight size={16} /></a></div>
+                ) : <div className="incident-list">{incidents.map((incident) => <IncidentCard key={incident.id} incident={incident} active={active?.id === incident.id} onSelect={() => setActive(incident)} />)}</div>}
+                <div className="board-note"><ShieldAlert size={16} /><span>Saved on this device. Review every recommendation.</span></div>
+              </section>
             </div>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              IncidentOps does not dispatch emergency services. Severity is an
-              advisory for human confirmation.
-            </p>
-          </div>
-        </section>
-
-        <section className="space-y-6">
-          <div className="rounded-[1.8rem] border border-[var(--line)] bg-white/70 p-5 backdrop-blur md:p-6">
-            <div className="mb-4 flex items-end justify-between gap-3">
-              <div>
-                <p className="section-kicker">Ops board</p>
-                <h2 className="mt-2 font-display text-3xl text-[var(--ink)]">
-                  Incident cards
-                </h2>
-              </div>
-              <p className="text-sm text-[var(--muted)]">
-                {incidents.length} saved locally
-              </p>
-            </div>
-            {incidents.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel)] px-4 py-8 text-sm text-[var(--muted)]">
-                No incidents yet. Run a sample analysis to populate the board.
-              </p>
-            ) : (
-              <div className="grid gap-3 sm:grid-cols-2">
-                {incidents.map((incident) => (
-                  <IncidentCard
-                    key={incident.id}
-                    incident={incident}
-                    active={active?.id === incident.id}
-                    onSelect={() => setActive(incident)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div id="trace-anchor">
-            {active ? (
-              <IncidentReportView result={active} />
-            ) : (
-              <div className="rounded-[1.8rem] border border-dashed border-[var(--line)] bg-white/55 px-6 py-16 text-center">
-                <p className="font-display text-2xl text-[var(--ink)]">
-                  Waiting for first analysis
-                </p>
-                <p className="mx-auto mt-3 max-w-md text-sm text-[var(--muted)]">
-                  Your sourced brief, checklist, and Nebius/Tavily execution
-                  trace will appear here.
-                </p>
-              </div>
-            )}
-          </div>
-        </section>
-      </div>
-    </main>
+          </section>
+        </ScrollReveal>
+        <ScrollReveal>
+          <section id="trace-anchor" className="response-section">
+            {active ? <IncidentReportView result={active} /> : <div className="response-empty"><div><h2>From evidence to action.</h2><p>Your sourced brief, response checklist, and execution trace will appear here after analysis.</p></div><div className="response-path"><span>Observe</span><ArrowUpRight /><span>Assess</span><ArrowUpRight /><span>Respond</span></div></div>}
+          </section>
+        </ScrollReveal>
+        <IncidentQuoteDeck />
+      </main>
+      <footer className="page-width footer"><a className="brand" href="#"><Aperture size={20} /><span>IncidentOps</span></a><p>Better evidence. More informed decisions.</p><span>Human judgment comes first.</span></footer>
+    </div>
   );
 }

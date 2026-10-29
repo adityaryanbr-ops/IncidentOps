@@ -1,4 +1,4 @@
-import type { PipelineResult } from "./types";
+import type { PipelineResult, OfficialHelplineResult } from "./types";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
@@ -31,3 +31,13 @@ export async function analyzeIncident(form: FormData): Promise<PipelineResult> {
 }
 
 export { API_BASE };
+
+
+export async function getOfficialHelplines(location: string, category: string, signal: AbortSignal): Promise<OfficialHelplineResult> {
+  const response = await fetch(`${API_BASE}/api/incidents/helplines/official`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ location, category: category.slice(0, 200) }), signal,
+  });
+  if (!response.ok) throw new Error("Official contact lookup is unavailable. Try again when the backend is connected.");
+  return response.json();
+}

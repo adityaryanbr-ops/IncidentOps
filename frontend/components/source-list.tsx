@@ -3,7 +3,7 @@ import type { ContextSource } from "@/lib/types";
 export function SourceList({ sources }: { sources: ContextSource[] }) {
   if (!sources.length) {
     return (
-      <p className="text-sm text-[var(--muted)]">No live sources returned.</p>
+      <p className="text-lg text-[var(--muted)]">No live sources returned.</p>
     );
   }
 
@@ -12,22 +12,20 @@ export function SourceList({ sources }: { sources: ContextSource[] }) {
       {sources.map((source) => (
         <li
           key={`${source.url}-${source.title}`}
-          className="rounded-2xl border border-[var(--line)] bg-white/75 p-4"
+          className="source-row border-b border-[var(--line)] py-5"
         >
           <a
             href={source.url}
             target="_blank"
             rel="noreferrer"
-            className="font-medium text-teal-900 underline-offset-4 hover:underline"
+            className="font-medium text-[var(--signal)] underline-offset-4 hover:underline"
           >
             {source.title}
           </a>
-          <p className="mt-1 text-xs uppercase tracking-[0.14em] text-[var(--muted)]">
-            query · {source.query}
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--ink)]/80">
-            {source.snippet}
-          </p>
+          <details className="source-excerpt mt-2">
+            <summary className="text-[var(--muted)]">Read source excerpt</summary>
+            <p className="mt-2 text-lg leading-relaxed text-[var(--ink)]">{source.snippet}</p>
+          </details>
         </li>
       ))}
     </ul>

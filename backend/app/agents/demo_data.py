@@ -123,19 +123,19 @@ Reporter note: {report_text}
         ],
         checklist=[
             ChecklistItem(
-                priority="P0",
+                priority="P1",
                 action="Secure the immediate area and prevent pedestrian entry through debris.",
                 owner_hint="First on-scene responder",
                 rationale="Visible obstruction creates immediate trip/fall risk.",
             ),
             ChecklistItem(
-                priority="P1",
+                priority="P2",
                 action="Notify facilities/campus safety for structural and utilities review.",
                 owner_hint="Shift lead",
                 rationale="Single-image evidence cannot confirm structural integrity.",
             ),
             ChecklistItem(
-                priority="P2",
+                priority="P3",
                 action="Log weather/closure sources and attach them to the incident record.",
                 owner_hint="Incident scribe",
                 rationale="Live context should remain auditable for handoff.",

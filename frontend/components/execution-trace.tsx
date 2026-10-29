@@ -16,27 +16,26 @@ export function ExecutionTrace({
     <section className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="section-kicker">Runtime proof</p>
           <h3 className="font-display text-2xl tracking-tight text-[var(--ink)]">
             Nebius + Tavily trace
           </h3>
         </div>
         {demoMode ? (
-          <span className="rounded-md border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-950">
-            Demo mode — add API keys for live Nebius/Tavily calls
+          <span className="rounded-md border border-[var(--line)] bg-[var(--accent)] px-3 py-1 text-base font-medium text-[var(--signal)]">
+            Demo mode : add API keys for live Nebius/Tavily calls
           </span>
         ) : (
-          <span className="rounded-md border border-teal-300 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-950">
+          <span className="rounded-md border border-[var(--line)] bg-[var(--accent)] px-3 py-1 text-base font-medium text-[var(--ink)]">
             Live Nebius Token Factory
           </span>
         )}
       </div>
 
-      <div className="rounded-2xl border border-[var(--line)] bg-white/70 p-4 backdrop-blur">
-        <p className="text-sm text-[var(--muted)]">
+      <div className="rounded-xl border border-[var(--line)] bg-[var(--card)] p-4 backdrop-blur">
+        <p className="text-lg text-[var(--muted)]">
           Base URL: <code className="text-[var(--ink)]">{baseUrl}</code>
         </p>
-        <p className="mt-1 text-sm text-[var(--muted)]">
+        <p className="mt-1 text-lg text-[var(--muted)]">
           Models: {models.join(" · ")}
         </p>
       </div>
@@ -46,7 +45,7 @@ export function ExecutionTrace({
           <li
             key={`${step.step}-${index}`}
             className={cn(
-              "trace-row rounded-2xl border border-[var(--line)] bg-white/80 p-4",
+              "trace-row rounded-xl border border-[var(--line)] bg-[var(--card)] p-4",
               `delay-${index}`,
             )}
             style={{ animationDelay: `${index * 90}ms` }}
@@ -55,14 +54,14 @@ export function ExecutionTrace({
               <p className="font-medium text-[var(--ink)]">
                 {index + 1}. {step.step.replaceAll("_", " ")}
               </p>
-              <span className="text-xs uppercase tracking-[0.16em] text-[var(--muted)]">
+              <span className="text-base uppercase tracking-[0.16em] text-[var(--muted)]">
                 {step.provider}
                 {step.latency_ms != null ? ` · ${step.latency_ms}ms` : ""}
               </span>
             </div>
-            <p className="mt-2 text-sm text-[var(--muted)]">{step.detail}</p>
+            <p className="mt-2 text-lg text-[var(--muted)]">{step.detail}</p>
             {step.model ? (
-              <p className="mt-2 font-mono text-xs text-teal-800">{step.model}</p>
+              <p className="mt-2 font-mono text-base text-[var(--signal)]">{step.model}</p>
             ) : null}
           </li>
         ))}

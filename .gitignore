@@ -51,3 +51,6 @@ Desktop.ini
 # Local scratch from this workspace
 agent-tools/
 *.log
+
+# Local speech model
+.models/

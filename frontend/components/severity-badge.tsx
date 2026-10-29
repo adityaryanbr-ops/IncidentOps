@@ -20,7 +20,7 @@ export function SeverityBadge({
     <Badge
       variant="outline"
       className={cn(
-        "rounded-md px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-[0.14em]",
+        "rounded-md px-2.5 py-0.5 text-base font-semibold tracking-wide",
         STYLES[severity],
         className,
       )}

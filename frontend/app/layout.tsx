@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, Syne } from "next/font/google";
+import { IBM_Plex_Sans, Manrope } from "next/font/google";
 import "./globals.css";
 
 const plex = IBM_Plex_Sans({
-  variable: "--font-sans",
+  variable: "--font-plex",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
 
-const syne = Syne({
+const display = Manrope({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -27,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${plex.variable} ${syne.variable} antialiased`}>
+      <body className={`${plex.variable} ${display.variable} antialiased`}>
         {children}
       </body>
     </html>

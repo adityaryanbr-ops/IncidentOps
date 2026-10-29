@@ -11,6 +11,11 @@ A responder uploads a photo, a location, and a short report. IncidentOps extract
 ## Features
 
 - Photo + text intake, with optional voice-note transcript and coordinates
+
+To reopen the app after dependencies are installed, run `bash start.sh` from
+the IncidentOps folder. This starts both the frontend and backend; keep the
+terminal open. Stop any existing copies first. Voice transcription also needs
+the Whisper model provisioned as described in `backend/README.md`.
 - Three built-in sample incidents so the UI can be tried without hunting for a photo
 - Visual evidence extraction with NVIDIA Nemotron 3.5 Super VL
 - Severity plan and response brief with NVIDIA Nemotron 3 Nano

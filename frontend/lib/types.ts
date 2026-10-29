@@ -17,10 +17,21 @@ export type ContextSource = {
 };
 
 export type ChecklistItem = {
-  priority: "P0" | "P1" | "P2";
+  priority: "P1" | "P2" | "P3";
   action: string;
   owner_hint: string;
   rationale: string;
+};
+
+export type Helpline = {
+  service: string;
+  phone: string;
+  jurisdiction: string;
+  purpose: string;
+  source_url: string;
+  evidence_quote: string;
+  source_kind?: "live_lookup" | "official_directory";
+  last_reviewed?: string | null;
 };
 
 export type IncidentReport = {
@@ -37,6 +48,9 @@ export type IncidentReport = {
   live_context_summary: string;
   sources: ContextSource[];
   human_verification_required: string[];
+  helplines?: Helpline[];
+  helpline_lookup_state?: "found" | "official_fallback" | "not_found" | "location_required" | "lookup_failed" | "demo";
+  helpline_status?: string;
   emergency_notice?: string | null;
   markdown_report: string;
 };
@@ -84,4 +98,11 @@ export type SampleIncident = {
   imagePath: string;
   latitude?: number;
   longitude?: number;
+};
+
+export type OfficialHelplineResult = {
+  helplines: Helpline[];
+  helpline_lookup_state: "official_fallback" | "not_found" | "location_required";
+  helpline_status: string;
+  markdown_section: string;
 };
