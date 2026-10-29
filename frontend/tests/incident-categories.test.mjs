@@ -62,3 +62,10 @@ test('selecting a category updates details and passes it to intake only on repor
   report.props.onClick();
   assert.equal(chosen.id, 'flood');
 });
+
+test('home page keeps the incident explorer without the hero carousel or testimonial deck', () => {
+  const page = fs.readFileSync('app/page.tsx', 'utf8');
+  assert.ok(!page.includes('IncidentArcCarousel'));
+  assert.ok(!page.includes('IncidentQuoteDeck'));
+  assert.ok(page.includes('<IncidentCategories'));
+});

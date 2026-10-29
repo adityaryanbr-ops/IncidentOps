@@ -82,7 +82,7 @@ class IncidentPipeline:
         with trace.step(
             "severity_plan",
             "Nebius Token Factory",
-            "Nemotron Nano classifies severity and plans searches",
+            "Nemotron Lightning classifies severity and plans searches",
             model=self.settings.text_model,
         ):
             assess_raw = await self.nebius.text_json(
@@ -184,7 +184,7 @@ class IncidentPipeline:
         with trace.step(
             "response_brief",
             "Nebius Token Factory",
-            "Nemotron Nano drafts sourced response brief",
+            "Nemotron Lightning drafts sourced response brief",
             model=self.settings.text_model,
         ):
             brief_raw = await self.nebius.text_json(

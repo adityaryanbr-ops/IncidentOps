@@ -2,7 +2,7 @@
 
 ## What worked well
 - Token Factory’s OpenAI-compatible API made integration fast (`base_url` swap).
-- Having both a VL model (`Nemotron-3.5-Super-VL`) and a fast text model (`Nemotron-3-Nano`) on one platform enabled a clean multi-step agent without juggling providers.
+- Having both a VL model (`Nemotron-3.5-Super-VL`) and a fast text model (`Nemotron-3_5-Lightning`) on one platform enabled a clean multi-step agent without juggling providers.
 - Model catalog markdown/JSON made ID confirmation straightforward.
 
 ## Friction

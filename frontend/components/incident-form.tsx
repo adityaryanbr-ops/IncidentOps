@@ -15,7 +15,7 @@ import { ArrowUpRight, LoaderCircle, LocateFixed, ScanLine, Upload } from "lucid
 const STAGES = [
   "Validating evidence",
   "Nemotron Super VL visual extract",
-  "Nemotron Nano severity plan",
+  "Nemotron Lightning severity plan",
   "Tavily live context",
   "Drafting response brief",
 ];

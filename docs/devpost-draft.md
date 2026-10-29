@@ -9,7 +9,7 @@ Campus and infrastructure responders often receive a single photo and a rushed n
 ## What it does
 IncidentOps accepts an incident photo, location, and report text. It:
 - extracts visual facts with NVIDIA Nemotron 3.5 Super VL on Nebius Token Factory
-- classifies advisory severity and plans searches with Nemotron 3 Nano
+- classifies advisory severity and plans searches with Nemotron 3.5 Lightning
 - calls Tavily at runtime for weather/closures/facilities context
 - drafts a sourced response brief, checklist, and exportable Markdown/PDF printout
 - shows a runtime execution trace proving Nebius + Tavily calls

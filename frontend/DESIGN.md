@@ -86,11 +86,8 @@ autoplay. The deck remains selectable by tapping a card, swiping horizontally or
 using arrow/Home/End keys from its focusable section. Vertical scrolling is native.
 The existing scroll entrance and reduced-motion CSS remain.
 
-Six drafted testimonials now have fictional names and locally generated fictional
-portraits, stored as a 768×512 six-cell atlas in public/review-personas.webp (~42KB).
-A visible section disclosure identifies the names and portraits as fictional;
-these are not represented as collected customer endorsements. Each visible card
-has a full-card button, a name and role, and an avatar from its assigned atlas cell.
+The quote deck was later removed entirely, along with its fictional names and
+portrait atlas, so the homepage shows no user testimonials.
 
 Verified: 28 frontend tests, lint, TypeScript and production build pass. The new
 portrait sheet was inspected visually. Local browser/mobile rendering remains

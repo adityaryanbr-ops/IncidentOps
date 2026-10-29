@@ -11,8 +11,8 @@
 └──┬─────────┬─────────┬───┘
    │         │         │
    ▼         ▼         ▼
-Nebius VL  Nebius Nano  Tavily
-Super VL   plan/brief   Search
+Nebius VL  Nebius Lightning  Tavily
+Super VL   plan/brief        Search
 ```
 
 ## Data contracts

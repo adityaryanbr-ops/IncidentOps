@@ -11,14 +11,9 @@ A responder uploads a photo, a location, and a short report. IncidentOps extract
 ## Features
 
 - Photo + text intake, with optional voice-note transcript and coordinates
-
-To reopen the app after dependencies are installed, run `bash start.sh` from
-the IncidentOps folder. This starts both the frontend and backend; keep the
-terminal open. Stop any existing copies first. Voice transcription also needs
-the Whisper model provisioned as described in `backend/README.md`.
 - Three built-in sample incidents so the UI can be tried without hunting for a photo
 - Visual evidence extraction with NVIDIA Nemotron 3.5 Super VL
-- Severity plan and response brief with NVIDIA Nemotron 3 Nano
+- Severity plan and response brief with NVIDIA Nemotron 3.5 Lightning
 - Runtime Tavily search for weather, closures, and nearby facilities
 - Incident cards saved in the browser, Markdown download, and print-to-PDF
 - Execution trace showing the Nebius base URL, model IDs, and Tavily step
@@ -45,8 +40,8 @@ Every model call goes to Nebius Token Factory. Hugging Face, OpenRouter, and NIM
 | Step | Model ID | Role |
 | --- | --- | --- |
 | Vision extract | `nvidia/Nemotron-3.5-Super-VL` | Scene, hazards, damaged objects, unknowns |
-| Severity + search plan | `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` | Advisory severity and Tavily queries |
-| Response brief | `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` | Sourced checklist and Markdown report |
+| Severity + search plan | `nvidia/Nemotron-3_5-Lightning` | Advisory severity and Tavily queries |
+| Response brief | `nvidia/Nemotron-3_5-Lightning` | Sourced checklist and Markdown report |
 
 - Base URL: `https://api.tokenfactory.nebius.com/v1/`
 - Client: `backend/app/clients/nebius.py`
@@ -58,9 +53,9 @@ Next.js (port 3847)
    ▼
 FastAPI (port 8765)  →  backend/app/main.py
    ├─ Nemotron 3.5 Super VL  → visual observations
-   ├─ Nemotron 3 Nano        → severity + search queries
+   ├─ Nemotron 3.5 Lightning → severity + search queries
    ├─ Tavily Search API      → live sources
-   └─ Nemotron 3 Nano        → final response brief
+   └─ Nemotron 3.5 Lightning → final response brief
 ```
 
 ## Prerequisites (Windows)
@@ -120,7 +115,7 @@ Copy examples and edit them locally. Do not commit real keys.
 | `TAVILY_API_KEY` | `backend/.env` | Tavily Search key. Required for live web context. |
 | `NEBIUS_BASE_URL` | `backend/.env` | Default `https://api.tokenfactory.nebius.com/v1/` |
 | `VISION_MODEL` | `backend/.env` | Default `nvidia/Nemotron-3.5-Super-VL` |
-| `TEXT_MODEL` | `backend/.env` | Default `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` |
+| `TEXT_MODEL` | `backend/.env` | Default `nvidia/Nemotron-3_5-Lightning` |
 | `CORS_ORIGINS` | `backend/.env` | Include `http://localhost:3847` |
 | `ALLOW_DEMO_MODE` | `backend/.env` | `true` returns a labeled fallback when keys are missing |
 | `FORCE_DEMO_MODE` | `backend/.env` | `true` always uses the fallback, even if keys exist |
@@ -202,4 +197,4 @@ npm run dev
 
 ## Publishing note
 
-Do not commit `backend/.env`, `frontend/.env.local`, `backend/.venv`, `frontend/node_modules`, or `frontend/.next`. Those paths are gitignored. This workspace is not published to GitHub until you add the destination repository URL.
+Do not commit `backend/.env`, `frontend/.env.local`, `backend/.venv`, `frontend/node_modules`, or `frontend/.next`. Those paths are gitignored.

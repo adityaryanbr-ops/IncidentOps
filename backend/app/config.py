@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     tavily_api_key: str = ""
     nebius_base_url: str = "https://api.tokenfactory.nebius.com/v1/"
     vision_model: str = "nvidia/Nemotron-3.5-Super-VL"
-    text_model: str = "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B"
+    text_model: str = "nvidia/Nemotron-3_5-Lightning"
     cors_origins: str = "http://localhost:3847,http://127.0.0.1:3847"
     max_image_bytes: int = 8 * 1024 * 1024
     allow_demo_mode: bool = True

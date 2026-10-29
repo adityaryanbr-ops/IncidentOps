@@ -10,7 +10,6 @@ import type { PipelineResult, SavedIncident } from "@/lib/types";
 import Image from "next/image";
 import { IncidentCategories } from "@/components/incident-categories";
 import type { IncidentCategory } from "@/lib/incident-categories";
-import { IncidentQuoteDeck } from "@/components/showcase-carousels";
 import { ScrollReveal } from "@/components/scroll-reveal";
 import { ArrowRight, ArrowUpRight, Activity, Aperture, Layers3, ScanLine, ShieldAlert, Sun, Moon } from "lucide-react";
 
@@ -87,7 +86,7 @@ export default function HomePage() {
         <IncidentCategories onChoose={setIncidentCategory} />
         <div className="runtime-strip">
           <div className="runtime-status"><Activity size={17} /><span>{status}</span></div>
-          <details className="runtime-details"><summary>Connection details</summary><div><p>Address lookup: Photon / OpenStreetMap contributors.</p><p>{health?.vision_model || "nvidia/Nemotron-3.5-Super-VL"}</p><p>{health?.text_model || "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B"}</p><p>{healthError || "Live analysis requires configured Nebius and Tavily API keys."}</p></div></details>
+          <details className="runtime-details"><summary>Connection details</summary><div><p>Address lookup: Photon / OpenStreetMap contributors.</p><p>{health?.vision_model || "nvidia/Nemotron-3.5-Super-VL"}</p><p>{health?.text_model || "nvidia/Nemotron-3_5-Lightning"}</p><p>{healthError || "Live analysis requires configured Nebius and Tavily API keys."}</p></div></details>
         </div>
         <ScrollReveal>
           <section id="workspace" className="workspace-section">
@@ -114,7 +113,6 @@ export default function HomePage() {
             {active ? <IncidentReportView result={active} /> : <div className="response-empty"><div><h2>From evidence to action.</h2><p>Your sourced brief, response checklist, and execution trace will appear here after analysis.</p></div><div className="response-path"><span>Observe</span><ArrowUpRight /><span>Assess</span><ArrowUpRight /><span>Respond</span></div></div>}
           </section>
         </ScrollReveal>
-        <IncidentQuoteDeck />
       </main>
       <footer className="page-width footer"><a className="brand" href="#"><Aperture size={20} /><span>IncidentOps</span></a><p>Better evidence. More informed decisions.</p><span>Human judgment comes first.</span></footer>
     </div>

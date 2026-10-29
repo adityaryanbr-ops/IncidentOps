@@ -211,45 +211,6 @@
 
 .location-button { display: inline-flex; align-items: center; gap: 9px; min-height: 48px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 8px; font-size: 18px; color: var(--signal); }.location-button:hover { background: var(--accent); }
 
-/* Quote deck: manual interaction, without playback or arrow controls. */
-.quote-section { position: relative; overflow: hidden; isolation: isolate; border-radius: 28px; background: #e7e6de; color: #23251e; padding: 64px 0 36px; margin: 100px 0 32px; touch-action: pan-y; }
-.quote-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding-inline: 56px; }
-.quote-overline { text-transform: uppercase; letter-spacing: .16em; font-size: 16px; color: #5d6153; margin-bottom: 18px; }
-.quote-heading h2 { font-family: var(--font-display); font-size: clamp(36px, 4.2vw, 64px); line-height: 1.05; font-weight: 400; letter-spacing: -.045em; }
-.quote-disclosure { max-width: 300px; font-size: 16px; line-height: 1.7; color: #5d6153; }
-.quote-stage { position: relative; height: 440px; margin-top: 40px; }
-.quote-card { position: absolute; top: 18px; left: 50%; display: flex; flex-direction: column; width: clamp(260px, 28vw, 360px); min-height: 340px; padding: 26px; border-radius: 13px; border: 1px solid #363b2214; background: #d9e1cf; color: #25291e; transform: translateX(calc(-50% + var(--offset) * 82%)) translateY(calc(var(--offset) * var(--offset) * 8px)) rotate(calc(var(--offset) * 7deg)) scale(calc(1 - var(--offset) * var(--offset) * .035)); transition: transform .75s cubic-bezier(.22,.8,.22,1), opacity .65s, box-shadow .65s; }
-.quote-card[data-active="true"] { box-shadow: 0 18px 35px #292e1918; }
-.quote-card[data-tone="sand"] { background: #e4d9c5; }.quote-card[data-tone="lemon"] { background: #e4e7aa; }.quote-card[data-tone="blue"] { background: #d2dce1; }.quote-card[data-tone="rose"] { background: #e7d5cf; }.quote-card[data-tone="lavender"] { background: #dcd9e4; }
-.quote-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 16px; }
-.quote-card blockquote { flex: 1; margin: 24px 0 28px; font-family: var(--font-display); font-size: clamp(20px, 2.2vw, 28px); line-height: 1.22; letter-spacing: -.035em; }
-.quote-card footer { display: flex; gap: 10px; align-items: center; padding-top: 14px; border-top: 1px solid #25291e24; font-size: 16px; line-height: 1.4; }
-.quote-card footer small { display: block; margin-top: 3px; color: #5d6153; font-size: 16px; }
-.quote-avatar { width: 32px; height: 32px; display: grid; place-items: center; flex-shrink: 0; border: 1px solid #25291e30; border-radius: 50%; font-size: 16px; }
-.quote-section :focus-visible { outline-color: #374126; }
-.quote-avatar { width: 42px; height: 42px; background-image: url('/review-personas.webp'); background-size: 300% 200%; background-repeat: no-repeat; }
-.quote-card footer strong { display: block; font-weight: 600; font-size: 16px; }
-.quote-pick { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: inherit; background: transparent; }
-.quote-pick:focus-visible { outline: 2px solid #374126; outline-offset: -5px; }
-.quote-instructions { text-align: center; font-size: 16px; color: #5d6153; padding-inline: 20px; }
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .quote-stage { animation: deck-scroll-arrive linear both; animation-timeline: view(); animation-range: entry 0% entry 100%; }
-  }
-}
-@keyframes deck-scroll-arrive { from { translate: 0 40px; } to { translate: 0 0; } }
-@media (max-width: 1100px) { .quote-heading { padding-inline: 32px; } }
-@media (max-width: 767px) {
-  .quote-section { margin-top: 64px; padding-top: 36px; border-radius: 20px; }
-  .quote-heading { flex-direction: column; align-items: flex-start; gap: 18px; padding-inline: 24px; }
-  .quote-heading h2 { font-size: 40px; }
-  .quote-stage { height: 440px; margin-top: 28px; }
-  .quote-card { width: min(272px, 76vw); min-height: 340px; padding: 22px; transform: translateX(calc(-50% + var(--offset) * 81%)) translateY(calc(var(--offset) * var(--offset) * 12px)) rotate(calc(var(--offset) * 8deg)) scale(calc(1 - var(--offset) * var(--offset) * .04)); }
-  .quote-card blockquote { font-size: 25px; }
-}
-@media (prefers-reduced-motion: reduce) { .quote-stage { animation: none !important; translate: none; } }
-@media print { .quote-section { display: none !important; } }
-
 /* Readable controls and room for longer labels at mobile widths. */
 .incident-form label { line-height: 1.4; }
 .sample-buttons { gap: 12px; }
@@ -260,7 +221,6 @@
 .action-button { font-size: 18px; min-height: 56px; }
 .panel-heading { flex-wrap: wrap; }
 .saved-count { font-size: 16px; }
-.quote-card footer strong { font-size: 18px; }
 .source-excerpt summary, .report-details > summary { cursor: pointer; padding-block: 12px; font-size: 18px; }
 .source-excerpt p { max-height: 22rem; overflow: auto; }
 @media (max-width: 1100px) { .workspace-grid { grid-template-columns: 1fr; } }
@@ -271,8 +231,6 @@
   .category-card { padding-bottom: 22px; }
   .incident-form .sample-buttons { display: grid; grid-template-columns: 1fr; }
   .intake-category a { margin-left: 0; }
-  .quote-stage { height: 460px; }
-  .quote-card { width: min(300px, 80vw); }
 }
 
 /* Open layouts and ruled rows replace repeated floating cards. */
@@ -287,8 +245,6 @@
 .incident-row { border: 0; border-bottom: 1px solid var(--line); border-left: 3px solid transparent; border-radius: 0; background: transparent; }
 .incident-row[aria-pressed='true'] { border-left-color: var(--signal); background: var(--accent); }
 .incident-form input, .incident-form textarea, .sample-buttons button, .location-button { border-radius: 4px; }
-.quote-section { border-radius: 0; }
-.quote-card { border-radius: 6px; }
 
 .response-brief { --severity-color: #efb967; --contact-color: #a9d6bc; padding: 40px 0 0; border-top: 2px solid var(--ink); line-height: 1.65; }
 .response-brief[data-severity='low'] { --severity-color: #a9d6bc; }
@@ -367,7 +323,6 @@
   .brief-jump { column-gap: 22px; }
   .action-steps > li { grid-template-columns: 32px minmax(0, 1fr); gap: 12px; }
   .action-steps p { font-size: 19px; }
-  .quote-section { border-radius: 0; }
 }
 @media print {
   .response-brief { --contact-color: #20583e; --severity-color: #71471b !important; padding-top: 12px; }
