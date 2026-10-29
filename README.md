@@ -195,6 +195,8 @@ npm install
 npm run dev
 ```
 
+After both sides are installed, `bash start.sh` from the repository root starts the API and the UI together. It expects a Unix virtual environment (`backend/.venv/bin/uvicorn`). On Windows, use the two PowerShell commands under "Run locally on Windows". Voice transcription also needs the Whisper model described in `backend/README.md`.
+
 ## Publishing note
 
 Do not commit `backend/.env`, `frontend/.env.local`, `backend/.venv`, `frontend/node_modules`, or `frontend/.next`. Those paths are gitignored.
